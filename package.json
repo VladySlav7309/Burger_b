@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+<<<<<<< HEAD
+=======
+    "prop-types": "^15.6.2",
+>>>>>>> fe0662d40d9c0c8830007c5e1ae0d320df44e5de
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-scripts": "2.1.2"
