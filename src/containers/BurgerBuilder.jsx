@@ -1,6 +1,14 @@
 import React, { Component } from 'react';
 
 import Burger from '../components/burger/Burger';
+import BuildControls from '../components/burger/build_controls/BuildControls';
+
+const INGREDIENT_PRICES = {
+    salad  : 0.5,
+    cheese : 0.4,
+    meat   : 1.3,
+    bacon  : 0.7
+}
 
 class BurgerBuilder extends Component {
     constructor( props ) {
@@ -11,17 +19,70 @@ class BurgerBuilder extends Component {
                 bacon  : 0,
                 cheese : 0,
                 meat   : 0
-            }
+            },
+            total_price   : 4,
+            can_purchase : false
         }
     }
 
+    updatePurchaseState () {
+        let can_purchase = false;
+        for( let key in this.state.ingredients ) {
+            if( this.state.ingredients[key] > 0 ) {
+                can_purchase = true;
+            }
+        }
+
+        this.setState({ can_purchase : can_purchase });
+    }
+    addIngredientHandler = type => {
+        this.setState({
+                total_price : this.state.total_price + INGREDIENT_PRICES[type],
+                ingredients : {
+                    ...this.state.ingredients,
+                    [type] : this.state.ingredients[type] + 1
+                }
+            },
+            this.updatePurchaseState
+        );
+    }
+
+    removeIngredientHandler = type => {
+        const oldCount = this.state.ingredients[type];
+        if( oldCount <= 0 ) {
+            return;
+        }
+
+        const newPrice = this.state.total_price - INGREDIENT_PRICES[type];
+        const updatedIngredients = {
+            ...this.state.ingredients,
+            [type] : oldCount - 1
+        };
+
+        this.setState({
+                total_price : newPrice,
+                ingredients : updatedIngredients
+            },
+            this.updatePurchaseState
+        );
+    }
+
     render() {
+        const disabledInfo = {
+            ...this.state.ingredients
+        };
+        for( let key in disabledInfo ) {
+            disabledInfo[key] = disabledInfo[key] <= 0;
+        }
         return (
             <>
                 <Burger ingredients={this.state.ingredients} />
-                <div>
-                    Build Controls
-                </div>
+                <BuildControls
+                    ingredientAdded={this.addIngredientHandler.bind(this)}
+                    ingredientRemoved={this.removeIngredientHandler.bind(this)}
+                    price={this.state.total_price}
+                    disabled={disabledInfo}
+                    can_purchase={this.state.can_purchase}/>
             </>
         )
     }
