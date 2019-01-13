@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 
-import Burger from '../components/burger/Burger';
+import Burger        from '../components/burger/Burger';
 import BuildControls from '../components/burger/build_controls/BuildControls';
+import Modal         from '../components/UI/Modal';
+import OrderSummary  from '../components/burger/order_summary/OrderSummary';
 
 const INGREDIENT_PRICES = {
     salad  : 0.5,
@@ -20,8 +22,9 @@ class BurgerBuilder extends Component {
                 cheese : 0,
                 meat   : 0
             },
-            total_price   : 4,
-            can_purchase : false
+            total_price  : 4,
+            can_purchase : false,
+            purchasing   : false
         }
     }
 
@@ -35,6 +38,15 @@ class BurgerBuilder extends Component {
 
         this.setState({ can_purchase : can_purchase });
     }
+
+    purchaseCancel = () => {
+        this.setState({ purchasing : false });
+    }
+
+    purchaseStart = () => {
+        this.setState({ purchasing : true });
+    }
+
     addIngredientHandler = type => {
         this.setState({
                 total_price : this.state.total_price + INGREDIENT_PRICES[type],
@@ -76,13 +88,17 @@ class BurgerBuilder extends Component {
         }
         return (
             <>
+                <Modal show={this.state.purchasing} modalClosed={this.purchaseCancel}>
+                    <OrderSummary ingredients={this.state.ingredients} />
+                </Modal>
                 <Burger ingredients={this.state.ingredients} />
                 <BuildControls
-                    ingredientAdded={this.addIngredientHandler.bind(this)}
-                    ingredientRemoved={this.removeIngredientHandler.bind(this)}
+                    ingredientAdded={this.addIngredientHandler}
+                    ingredientRemoved={this.removeIngredientHandler}
                     price={this.state.total_price}
                     disabled={disabledInfo}
-                    can_purchase={this.state.can_purchase}/>
+                    can_purchase={this.state.can_purchase}
+                    purchase={this.purchaseStart}/>
             </>
         )
     }
